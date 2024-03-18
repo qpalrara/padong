@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>My first three.js app</title>
+    <style>
+      canvas {
+        display: block;
+        background-color: #f8f8f2;
+      }
+    </style>
+    <link rel="stylesheet" href="./output.css" />
+  </head>
+  <body>
+    <div id="menu" class="w-40 h-16 hidden absolute rounded-md shadow-lg bg-slate-100">
+      <ul>
+        <li onclick="alert('Option 1 clicked')" class="border-b-2 border-gray-400 h-8 pl-2 hover:bg-slate-300 rounded-t-md">파동 추가</li>
+        <li onclick="" class="h-8 pl-2 hover:bg-slate-300 rounded-md">색상 변경</li>
+      </ul>
+    </div>
+    <button
+      class="padong fixed mx-4 my-4 border-2 border-blue-400 rounded-lg w-10 h-10 bg-white flex justify-center items-center"
+      onclick="const first = document.getElementById('first');first.classList.remove('hidden');this.classList.add('hidden');"
+      id="first-button"
+    >
+      <svg
+        width="24"
+        height="24"
+        xmlns="http://www.w3.org/2000/svg"
+        fill-rule="evenodd"
+        clip-rule="evenodd"
+      >
+        <path
+          d="M23.245 4l-11.245 14.374-11.219-14.374-.781.619 12 15.381 12-15.391-.755-.609z"
+        />
+      </svg>
+    </button>
+    <div
+      class="hidden fixed mx-4 my-6 px-4 py-5 h-70 w-60 bg-slate-100 rounded-lg shadow"
+      id="first"
+    >
+      <label
+      id="lk"
+        for="k"
+        class="block mb-2 text-sm font-bold text-gray-900 dark:text-white"
+        >k</label
+      >
+      <button class="fixed left-52 top-8 w-10 h-10" onclick="const firstButton = document.getElementById('first-button');firstButton.classList.remove('hidden');first.classList.add('hidden');"><svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="m12 10.93 5.719-5.72c.146-.146.339-.219.531-.219.404 0 .75.324.75.749 0 .193-.073.385-.219.532l-5.72 5.719 5.719 5.719c.147.147.22.339.22.531 0 .427-.349.75-.75.75-.192 0-.385-.073-.531-.219l-5.719-5.719-5.719 5.719c-.146.146-.339.219-.531.219-.401 0-.75-.323-.75-.75 0-.192.073-.384.22-.531l5.719-5.719-5.72-5.719c-.146-.147-.219-.339-.219-.532 0-.425.346-.749.75-.749.192 0 .385.073.531.219z"/></svg></button>
+      <input
+        id="k"
+        type="range"
+        value="1"
+        min="0"
+        max="2"
+        step="0.01"
+        class="w-full h-2 mb-6 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+      />
+
+      <label
+      id="lw"
+        for="w"
+        class="block mb-2 text-sm font-bold text-gray-900 dark:text-white"
+        >w</label
+      >
+      <input
+        id="w"
+        type="range"
+        value="3"
+        min="-6"
+        max="6"
+        step="0.02"
+        class="w-full h-2 mb-6 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+      />
+
+      <label
+      id ="ltheta"
+        for="theat"
+        class="block mb-2 text-sm font-bold text-gray-900 dark:text-white"
+        >theta</label
+      >
+      <input
+        id="theta"
+        type="range"
+        value="1.57"
+        min="0"
+        max="3.14"
+        step="0.01"
+        class="w-full h-2 mb-6 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700"
+      />
+
+    <script type="module">
+      import * as THREE from "https://unpkg.com/three/build/three.module.js";
+      import { OrbitControls } from 'https://unpkg.com/three/examples/jsm/controls/OrbitControls.js';
+
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth / window.innerHeight,
+        0.1,
+        1000
+      );
+      const renderer = new THREE.WebGLRenderer({ alpha: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.body.appendChild(renderer.domElement);
+
+      const points = [];
+      const size = 20; // 그래프의 크기
+      const step = 0.1; // 각 점 사이의 거리
+
+      // 점의 초기 위치 설정
+      for (let x = -size; x < size; x += step) {
+        for (let y = -size; y < size; y += step) {
+          const z = Math.cos(x + y);
+          points.push(new THREE.Vector3(x, y, z));
+        }
+      }
+
+      const geometry = new THREE.BufferGeometry().setFromPoints(points);
+      const material = new THREE.PointsMaterial({ color: 0x00ff00, size: 0.1 });
+      const pointCloud = new THREE.Points(geometry, material);
+      scene.add(pointCloud);
+
+      camera.position.z = 10;
+      camera.position.y = -20;
+      camera.lookAt(0, -10, 0);
+
+      const controls = new OrbitControls(camera, renderer.domElement);
+
+      const k = document.getElementById('k');
+      const w = document.getElementById('w');
+      const theta = document.getElementById('theta');
+      const lk = document.getElementById('lk');
+      const lw = document.getElementById('lw');
+      const ltheta = document.getElementById('ltheta');
+
+      let t = 0;
+      function animate() {
+        requestAnimationFrame(animate);
+        t += 0.1; // 시간 업데이트
+
+        lk.innerHTML = `k&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${k.value}`;
+        lw.innerHTML = `w&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${w.value}`;
+        ltheta.innerHTML = `theta&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${theta.value}`;
+
+        const positions = geometry.attributes.position.array;
+        let index = 0;
+        for (let x = -size; x < size; x += step) {
+          for (let y = -size; y < size; y += step) {
+            const z = Math.sin(x)+Math.sin((k.value*Math.cos(theta.value))*x+(k.value*Math.sin(theta.value))*y+(w.value)*t);
+            positions[index * 3 + 2] = z; // Z값만 업데이트
+            index++;
+          }
+        }
+
+        geometry.attributes.position.needsUpdate = true; // 변경 사항 적용
+        renderer.render(scene, camera);
+      }
+
+      animate();
+      
+      document.addEventListener('keypress', event=> {
+          if (event.key == 'w'){
+            camera.position.y += 1;
+          }
+          if (event.key == 'a'){
+            camera.position.x -= 1;
+          }
+          if (event.key == 's'){
+            camera.position.y -= 1;
+          }
+          if (event.key == 'd'){
+            camera.position.x += 1;
+          }
+      });
+    </script>
+
+    <script>
+      // 우클릭 이벤트 리스너 추가
+    document.addEventListener('contextmenu', function(event) {
+        event.preventDefault(); // 기본 우클릭 동작 방지
+        
+        // 팝업 위치 설정 및 표시
+        const customMenu = document.getElementById('menu');
+        customMenu.style.display = 'block';
+        customMenu.style.left = `${event.pageX}px`;
+        customMenu.style.top = `${event.pageY}px`;
+    });
+
+    // 다른 곳 클릭 시 팝업 창 닫기
+    document.addEventListener('click', function() {
+        document.getElementById('menu').style.display = 'none';
+    });
+    </script>
+  </body>
+</html>
